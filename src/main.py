@@ -11,7 +11,14 @@ import tomllib
 import joblib
 import pandas as pd
 
-from evaluate import evaluate, print_report, save_report
+from evaluate import (
+    evaluate,
+    full_params,
+    misclassified,
+    print_report,
+    save_report,
+    save_summary_md,
+)
 from model import MODELS, build_model
 from prepare_data import (
     LABEL_COL,
@@ -79,6 +86,16 @@ def main():
     results_dir = PROJECT_ROOT / "results"
     save_report({"model": args.model, "params": params, **metrics},
                 results_dir / f"{args.model}_val_metrics.json")
+
+    errors = misclassified(model, val_df[TEXT_COL], val_df[LABEL_COL])
+    errors_path = results_dir / f"{args.model}_val_errors.csv"
+    errors.to_csv(errors_path, index=False, encoding="utf-8-sig")
+    summary_path = results_dir / f"{args.model}_summary.md"
+    save_summary_md(summary_path, model_name=args.model, metrics=metrics, config=cfg,
+                    effective_params=full_params(model),
+                    sizes={"train": len(train_df), "val": len(val_df)}, n_errors=len(errors))
+    print(f"\nSummary saved to: {summary_path}")
+    print(f"Misclassified validation rows ({len(errors)}) saved to: {errors_path}")
 
     model_dir = PROJECT_ROOT / "model"
     model_dir.mkdir(exist_ok=True)
