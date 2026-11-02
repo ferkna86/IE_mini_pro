@@ -1,0 +1,18 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Training artifacts
+model/*.joblib
+results/
+
+# Course materials (not published)
+project1/
+tfidf_features_example.ipynb
