@@ -21,8 +21,14 @@ def build_tfidf_svm(params: dict):
     ])
 
 
+def build_lstm(params: dict):
+    from lstm_model import LSTMClassifier  # lazy: torch is only needed for this model
+    return LSTMClassifier(params.get("embedding"), params.get("lstm"), params.get("train"))
+
+
 MODELS = {
     "tfidf_svm": build_tfidf_svm,
+    "lstm": build_lstm,
 }
 
 

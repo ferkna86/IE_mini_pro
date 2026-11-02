@@ -30,6 +30,15 @@ class SmokeTests(unittest.TestCase):
         for key in ("accuracy", "macro_f1", "report", "confusion_matrix"):
             self.assertIn(key, metrics)
 
+    def test_lstm_fit_and_evaluate(self):
+        train_df, val_df = split_data(_toy_df(), val_size=0.2, seed=0)
+        model = build_model("lstm", {"embedding": {"min_freq": 1, "embed_dim": 8},
+                                     "lstm": {"hidden_size": 8}, "train": {"epochs": 2, "device": "cpu"}})
+        model.fit(train_df[TEXT_COL], train_df[LABEL_COL],
+                  val_data=(val_df[TEXT_COL], val_df[LABEL_COL]))
+        metrics = evaluate(model, val_df[TEXT_COL], val_df[LABEL_COL])
+        self.assertIn("macro_f1", metrics)
+
     def test_unknown_model(self):
         with self.assertRaises(ValueError):
             build_model("nope")

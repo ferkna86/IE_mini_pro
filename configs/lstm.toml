@@ -1,0 +1,33 @@
+# Edit values here, or override on the CLI, e.g. --set model.train.epochs=20 --set model.lstm.hidden_size=256
+
+[data]
+train_path = "data/train.json"
+test_path = "data/test.json"
+val_size = 0.2
+seed = 42
+
+[model]
+name = "lstm"
+
+[model.embedding]
+max_vocab = 20000
+min_freq = 2
+max_len = 200
+embed_dim = 100
+
+[model.lstm]
+hidden_size = 128
+num_layers = 1
+bidirectional = true
+dropout = 0.3
+
+[model.train]
+epochs = 10              # validation metrics are printed after every epoch
+batch_size = 64
+lr = 0.001
+weight_decay = 0.0
+grad_clip = 5.0
+class_weight = "balanced"  # or remove the line for none (classes are ~85% positive)
+keep_best = true         # restore the epoch with best validation macro-F1
+seed = 42
+device = "auto"          # auto | cpu | cuda

@@ -14,6 +14,7 @@ Python 3.13. Always use `uv` (`uv add`, `uv sync`, `uv run`); never call `pip` d
 uv sync
 uv run python src/main.py --model tfidf_svm                          # train + evaluate on validation split + save
 uv run python src/main.py --model tfidf_svm --set model.svm.C=0.5    # override any config value (repeatable)
+uv run python src/main.py --model lstm --set model.train.epochs=20 --set model.lstm.hidden_size=256  # LSTM; val metrics printed each epoch
 uv run python src/main.py --model tfidf_svm --predict-test           # also write test-set predictions
 cd src && uv run python -m unittest tests                            # smoke tests (flat imports, run from src/)
 ```
@@ -24,6 +25,7 @@ Flat modules in `src/` that import each other directly (`from model import ...`)
 
 - `prepare_data.py`: `load_train/load_test`, `split_data` (drops duplicate reviews *before* a stratified split, to avoid train/val leakage). Defines `TEXT_COL="reviews"`, `LABEL_COL="sentiments"`, `PROJECT_ROOT`.
 - `model.py`: `MODELS` registry mapping a name to a `build_*(params)` function. Every model takes **raw text** (`fit(texts, labels)` / `predict(texts)`); feature extraction (e.g. TF-IDF) lives inside the model pipeline. To add a model: write a builder, register it in `MODELS`, add `configs/<name>.toml`.
+- `lstm_model.py`: `LSTMClassifier` (tokenize -> embedding -> LSTM -> Linear, torch). Same raw-text `fit/predict`; sets `uses_validation=True` so `main.py` passes `val_data` and it prints val acc/macro-F1 every epoch (restores best epoch if `keep_best`). Config sections: `[model.embedding]`, `[model.lstm]`, `[model.train]` (epochs, batch_size, lr, ...).
 - `evaluate.py`: `evaluate` (accuracy, macro-F1, per-class report, confusion matrix), `print_report`, `save_report`.
 - `main.py`: CLI. Loads `configs/<model>.toml` (or `--config`), applies `--set a.b.c=value` overrides, splits, trains, evaluates on validation, saves `model/<name>.joblib` and `results/<name>_val_metrics.json`.
 - `configs/*.toml`: `[data]` (paths, val_size, seed) and `[model.*]` sections whose keys are passed as kwargs to the underlying estimators.

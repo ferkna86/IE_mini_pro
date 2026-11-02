@@ -71,7 +71,11 @@ def main():
     print(f"Params: { {k: v for k, v in params.items() if k != 'name'} }")
 
     model = build_model(args.model, params)
-    model.fit(train_df[TEXT_COL], train_df[LABEL_COL])
+    if getattr(model, "uses_validation", False):  # iterative models report val metrics per epoch
+        model.fit(train_df[TEXT_COL], train_df[LABEL_COL],
+                  val_data=(val_df[TEXT_COL], val_df[LABEL_COL]))
+    else:
+        model.fit(train_df[TEXT_COL], train_df[LABEL_COL])
 
     metrics = evaluate(model, val_df[TEXT_COL], val_df[LABEL_COL])
     print_report(metrics)
