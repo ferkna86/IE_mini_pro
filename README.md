@@ -1,4 +1,4 @@
-# IE4483 Mini Project: Sentiment Analysis of Product Reviews
+# Mini Project: Sentiment Analysis of Product Reviews
 
 Binary sentiment classification (0 = negative, 1 = positive) of product reviews, for NTU IE4483 Artificial Intelligence and Data Mining (Option 1). The current baseline is TF-IDF features + a linear SVM. The code is structured so other models can be added and selected from the command line.
 
